@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity"
+      >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body >
+<form action="#" th:action="@{/add}" th:object="${userBook}" method="post">
+    <div>
+        <table border="5px;" >
+            <thead>
+            <tr>
+                <th> Title </th>
+                <th> Action </th>
+
+
+
+
+
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr th:each="book : ${books}">
+                <td align="center"><span  th:text="${book.book_name}" > </span></td>
+                <td><a th:href="@{/showFormForSelect/{id}(id =${book.book_id})}">Seç</a></td>
+
+
+
+
+
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</form>
+
+
+
+
+
+</body>
+</html>
