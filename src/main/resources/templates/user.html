@@ -25,8 +25,8 @@
             <tbody>
 
             <tr th:each="book : ${books}">
-                <td align="center"><span  th:text="${book.book_name}" > </span></td>
-                <td><a th:href="@{/showFormForSelect/{id}(id =${book.book_id})}">Seç</a></td>
+                <td align="center"><span  th:text="${book.name}" > </span></td>
+                <td><a th:href="@{/showFormForSelect/{id}(id =${book.id})}">Seç</a></td>
 
 
 

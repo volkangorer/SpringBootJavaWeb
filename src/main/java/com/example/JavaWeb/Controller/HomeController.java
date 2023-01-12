@@ -1,25 +1,24 @@
-package com.example.JavaWeb;
+package com.example.JavaWeb.Controller;
 
+import com.example.JavaWeb.Model.Book;
+import com.example.JavaWeb.Model.User;
+import com.example.JavaWeb.Repository.BooksRepository;
+import com.example.JavaWeb.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.Banner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.sound.midi.ShortMessage;
 import java.util.*;
 
 @Controller
 public class HomeController {
     @Autowired
-    private BooksRepository repo;
+    private BooksRepository booksRepository;
 
-    @Autowired UserBookRepository userBookRepository;
+    @Autowired UserRepository userRepository;
 
 
 
@@ -27,11 +26,11 @@ public class HomeController {
 
     @GetMapping("/")
     public String user(Model model){
-        List<Books> books = (List<Books>) repo.findAll();
+        List<Book> books = (List<Book>) booksRepository.findAll();
         model.addAttribute("books", books);
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String role = ((UserDetails)principal).getAuthorities().toString();
-        System.out.println(role);
+
 
         if(role.contains("ROLE_USER")){
             return "user";
@@ -45,15 +44,15 @@ public class HomeController {
 
     @GetMapping("/showFormForSelect/{id}")
     public String selectForm(@PathVariable(value = "id") Integer id, Model model){
-        Optional<Books> books = repo.findById(id);
+        Optional<Book> book = booksRepository.findById(id);
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         username = ((UserDetails)principal).getUsername();
 
 
-        UserBook userBook = new UserBook();
-        userBook.setUsers_name(username);
-        userBook.setBook_name(books.get().getBook_name());
-        userBookRepository.save(userBook);
+        User userBook = new User();
+        userBook.setBookname(book.get().getName());
+        userBook.setUsername(username);
+        userRepository.save(userBook);
 
         return "redirect:/result";
 
@@ -65,8 +64,8 @@ public class HomeController {
     }
 
     @PostMapping("/add")
-    public String addUserBook(@ModelAttribute("userBook") UserBook userBook){
-        userBookRepository.save(userBook);
+    public String addUserBook(@ModelAttribute("userBook") User userBook){
+        userRepository.save(userBook);
 
 
         return "add";
@@ -75,8 +74,8 @@ public class HomeController {
 
     @GetMapping("/admin")
     public String home(Model model) {
-        List<Books> books = (List<Books>) repo.findAll();
-        List<UserBook> userBooks = (List<UserBook>) userBookRepository.findAll();
+        List<Book> books = (List<Book>) booksRepository.findAll();
+        List<User> userBooks = (List<User>) userRepository.findAll();
         model.addAttribute("books", books);
         model.addAttribute("userBooks",userBooks);
 

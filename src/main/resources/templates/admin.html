@@ -18,8 +18,8 @@
     <tbody>
 
     <tr th:each="book : ${books}">
-        <td><span th:text="${book.book_name}"> </span></td>
-        <td><span th:text="${book.book_amount}"> </span></td>
+        <td><span th:text="${book.name}"> </span></td>
+        <td><span th:text="${book.amount}"> </span></td>
 
     </tr>
     </tbody>
@@ -36,8 +36,8 @@
     <tbody>
 
     <tr th:each="userBook : ${userBooks}">
-        <td><span th:text="${userBook.getBook_name()}"> </span></td>
-        <td><span th:text="${userBook.getUsers_name()}"> </span></td>
+        <td><span th:text="${userBook.bookname}"> </span></td>
+        <td><span th:text="${userBook.username}"> </span></td>
 
     </tr>
     </tbody>
