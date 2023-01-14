@@ -1,9 +1,10 @@
 package com.example.JavaWeb.Controller;
 
 import com.example.JavaWeb.Model.Book;
-import com.example.JavaWeb.Model.User;
+import com.example.JavaWeb.Model.Reserve;
+import com.example.JavaWeb.Model.Userbook;
 import com.example.JavaWeb.Repository.BooksRepository;
-import com.example.JavaWeb.Repository.UserRepository;
+import com.example.JavaWeb.Repository.UserbookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,18 +12,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.*;
 
 @Controller
 public class HomeController {
-    @Autowired
-    private BooksRepository booksRepository;
+    public static final String resultOk = "ok";
+    public static final String resultError = "error";
+    public static final String resultDateNull = "dateNull";
 
-    @Autowired UserRepository userRepository;
+    @Autowired BooksRepository booksRepository;
 
-
-
-    String username;
+    @Autowired UserbookRepository userBookRepository;
+    public static String username;
 
     @GetMapping("/")
     public String user(Model model){
@@ -30,7 +32,8 @@ public class HomeController {
         model.addAttribute("books", books);
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String role = ((UserDetails)principal).getAuthorities().toString();
-
+        username = ((UserDetails)principal).getUsername();
+        model.addAttribute("reserve",new Reserve());
 
         if(role.contains("ROLE_USER")){
             return "user";
@@ -38,21 +41,65 @@ public class HomeController {
         }else{
             return "redirect:/admin";
         }
-
-
     }
 
+    @PostMapping("/reserve/{id}")
+    public String createReserve(@PathVariable(value = "id") Integer id,@ModelAttribute Reserve reserve, HttpSession session){
+        Book book = booksRepository.findById(id).get();
+
+
+        if(book.getRemain()>0){
+
+            if (reserve.getDate().equals("")){
+                session.setAttribute("result",resultDateNull);
+            }else {
+                Userbook userBook = new Userbook();
+                userBook.setBookname(book.getName());
+                userBook.setUsername(username);
+                userBook.setIs_reserved(1);
+                userBook.setReservationDate(reserve.getDate());
+                userBookRepository.save(userBook);
+
+                book.setRemain(book.getRemain()-1);
+                booksRepository.save(book);
+
+                session.setAttribute("result",resultOk);
+
+            }
+
+        }else {
+            session.setAttribute("result",resultError);
+        }
+
+
+
+
+        return "result";
+    }
+
+
     @GetMapping("/showFormForSelect/{id}")
-    public String selectForm(@PathVariable(value = "id") Integer id, Model model){
-        Optional<Book> book = booksRepository.findById(id);
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        username = ((UserDetails)principal).getUsername();
+    public String selectForm(@PathVariable(value = "id") Integer id, HttpSession session){
+        Book book = booksRepository.findById(id).get();
+
+        if(book.getRemain()>0){
+            Userbook userBook = new Userbook();
+            userBook.setBookname(book.getName());
+            userBook.setUsername(username);
+            userBook.setIs_reserved(0);
+            userBookRepository.save(userBook);
+
+            book.setRemain(book.getRemain()-1);
+            booksRepository.save(book);
+
+            session.setAttribute("result",resultOk);
+
+        }else {
+            session.setAttribute("result",resultError);
+        }
 
 
-        User userBook = new User();
-        userBook.setBookname(book.get().getName());
-        userBook.setUsername(username);
-        userRepository.save(userBook);
+
 
         return "redirect:/result";
 
@@ -63,24 +110,23 @@ public class HomeController {
         return "result";
     }
 
-    @PostMapping("/add")
-    public String addUserBook(@ModelAttribute("userBook") User userBook){
-        userRepository.save(userBook);
-
-
-        return "add";
-    }
 
 
     @GetMapping("/admin")
     public String home(Model model) {
         List<Book> books = (List<Book>) booksRepository.findAll();
-        List<User> userBooks = (List<User>) userRepository.findAll();
         model.addAttribute("books", books);
-        model.addAttribute("userBooks",userBooks);
 
 
         return "admin";
+    }
+
+    @GetMapping("/customer")
+    public String customer(Model model) {
+        List<Userbook> userBooks = (List<Userbook>) userBookRepository.findAll();
+        model.addAttribute("userBooks",userBooks);
+
+        return "customer";
     }
 
 
@@ -105,4 +151,5 @@ public class HomeController {
         return "home";
 
     }*/
+
 }

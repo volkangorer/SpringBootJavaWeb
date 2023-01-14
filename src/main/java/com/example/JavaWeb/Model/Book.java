@@ -10,15 +10,17 @@ public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
 
-    Integer id;
+    int id;
     String name;
-    Integer amount;
+    int amount;
 
-    public Integer getId() {
+    int remain;
+
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -30,17 +32,19 @@ public class Book {
         this.name = name;
     }
 
-    public Integer getAmount() {
+    public int getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(int amount) {
         this.amount = amount;
     }
 
+    public int getRemain() {
+        return remain;
+    }
 
-
-
-
-
+    public void setRemain(int remain) {
+        this.remain = remain;
+    }
 }

@@ -1,5 +1,9 @@
 package com.example.JavaWeb;
 
+import com.example.JavaWeb.Model.Userss;
+import com.example.JavaWeb.Repository.UserbookRepository;
+import com.example.JavaWeb.Repository.UserssRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -8,28 +12,46 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-
+import java.util.List;
 
 
 @EnableWebSecurity
 public class SpringSecurityConfig {
+
+    public static final String roleUser = "USER";
+    public static final String roleAdmin = "ADMIN";
+    public static final String urlHome = "/";
+    public static final String urlAdmin = "/admin";
+
+    @Autowired
+    UserssRepository userssRepository;
     @Bean
     public UserDetailsService userDetailsService() throws Exception {
         // ensure the passwords are encoded properly
         User.UserBuilder users = User.withDefaultPasswordEncoder();
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(users.username("user").password("password").roles("USER").build());
-        manager.createUser(users.username("volkan").password("password").roles("USER").build());
-        manager.createUser(users.username("serkan").password("password").roles("USER").build());
-        manager.createUser(users.username("admin").password("password").roles("ADMIN").build());
+
+        List<Userss> userss = (List<Userss>) userssRepository.findAll();
+
+        for(int i = 0; i<userss.size();i++){
+            Userss userss1 = userss.get(i);
+            if (userss1.getIs_admin() == 0){
+
+                manager.createUser(users.username(userss1.getUsername()).password(userss1.getPassword()).roles(roleUser).build());
+            }else {
+                manager.createUser(users.username(userss1.getUsername()).password(userss1.getPassword()).roles(roleAdmin).build());
+            }
+        }
+        ;
+
         return manager;
     }
 
     @Bean
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/").hasAnyRole("USER","ADMIN")
-                .antMatchers("/admin").hasRole("ADMIN")
+                .antMatchers(urlHome).hasAnyRole(roleUser,roleAdmin)
+                .antMatchers(urlAdmin).hasRole(roleAdmin)
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().permitAll()

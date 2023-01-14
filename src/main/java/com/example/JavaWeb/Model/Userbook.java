@@ -6,7 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class User {
+public class Userbook {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -14,6 +14,26 @@ public class User {
     int id;
     String bookname;
     String username;
+
+    int is_reserved;
+
+    String reservationDate;
+
+    public String getReservationDate() {
+        return reservationDate;
+    }
+
+    public void setReservationDate(String reservationDate) {
+        this.reservationDate = reservationDate;
+    }
+
+    public int getIs_reserved() {
+        return is_reserved;
+    }
+
+    public void setIs_reserved(int is_reserved) {
+        this.is_reserved = is_reserved;
+    }
 
     public int getId() {
         return id;
